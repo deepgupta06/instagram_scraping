@@ -6,6 +6,7 @@ import random
 import string
 import json
 import ast
+import os
 
 def generate_username(length=8):
     # Define the pool of characters to choose from
@@ -35,7 +36,7 @@ def get_message(wd, message_xpath):
     return message
 
 
-driver_path = "../chromedriver.exe"
+driver_path = "../chromedriver"
 account_detail_json = "../data/tutanote_account.json"
 link = "https://mail.tutanota.com/login?noAutoLogin=true&keepSession=true"
 
@@ -58,9 +59,12 @@ RECOVERY_OK_BUTTON_XPATH = "/html/body/div/div[2]/div/div/div/div/div/div[2]/div
 
 MESSAGE_TXT_XPATH = "/html/body/div/div[2]/div/div/div/div/div/div[2]/div/div/div[2]/div/div[1]/small/div"
 
+wd = webdriver.Chrome(driver_path)
+country_code = ["US-C","US", "US-W", "CA", "FR", "DE", "NL", "NO", "RO", "CH", "GB", "GB-N", "TR", "HK"]
 
 while True:
-    wd = webdriver.Chrome(driver_path)
+    select_country = country_code[random.randint(0, len(country_code))]
+    status = os.system(f"windscribe connect {select_country}")
     wd.maximize_window()
     wd.get(link)
     more_element = wd.find_element(by=By.XPATH, value=MORE_XPATH)
@@ -68,7 +72,7 @@ while True:
     time.sleep(1)
     signup_element = wd.find_element(by=By.XPATH, value=SIGNUP_XPATH)
     signup_element.click()
-    time.sleep(5)
+    time.sleep(10)
     free_element = wd.find_element(by=By.XPATH, value=FREE_XPATH)
     free_element.click()
     time.sleep(1)
@@ -133,9 +137,10 @@ while True:
 
             with open(account_detail_json, "w") as json_file:
                 json_file.write(json_object)
-            wd.close()
 
         elif message == "Email address is not available.":
             wd.close()
             time.sleep(5)
+
+        os.system("windscribe disconnect")
     
